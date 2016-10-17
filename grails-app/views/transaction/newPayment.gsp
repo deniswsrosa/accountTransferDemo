@@ -27,11 +27,10 @@
             </g:hasErrors>
             <g:form action="save">
                 <fieldset class="form">
-                    <g:hiddenField name="actFrom.id" value="${transaction.actFrom.id}" />
                      <label>Account from: </label><br/>
-                     ${transaction.actFrom.accountName}<br/>
+                     <g:select name="actFrom.id" from="${accountList}"  value="${transaction?.actFrom?.id}" optionValue="accountName" optionKey="id" /><br/>
                      <label>Account to: </label><br/>
-                     <g:select name="actTo.id" from="${accountList}" optionValue="accountName" optionKey="id" /><br/>
+                     <g:select name="actTo.id" from="${accountList}"  value="${transaction?.actTo?.id}" optionValue="accountName" optionKey="id" /><br/>
                      <label>Ammount: </label><br/>
                      <g:textField name="ammount" value="${transaction.ammount ?: 0}" /><br/><br/>
                 </fieldset>

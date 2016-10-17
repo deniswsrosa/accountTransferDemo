@@ -12,17 +12,13 @@ class TransactionController {
     MailService mailService
 
     def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Transaction.list(params), model:[transactionCount: Transaction.count()]
+        redirect(action: "listAccounts")
     }
 
     def show(Transaction transaction) {
         respond transaction
     }
 
-    def create() {
-        respond new Transaction(params)
-    }
 
     @Transactional
     def save(Transaction transaction) {
@@ -34,17 +30,20 @@ class TransactionController {
 
         if (transaction.hasErrors()) {
             transactionStatus.setRollbackOnly()
-            respond transaction.errors, view:'create'
+            def accountList = Account.list();
+            respond transaction.errors, model: [transaction: transaction, accountList:accountList], view: 'newPayment'
             return
         }
 
-        def actFrom = transaction.actFrom
-        actFrom.transferMoney(transaction.actTo, transaction.ammount)
+        //execute the money transfer
+        transaction.transferMoney()
 
+        def actFrom = transaction.actFrom
         actFrom.validate()
+
         if(actFrom.hasErrors()) {
             transactionStatus.setRollbackOnly()
-            def accountList = Account.list()- transaction.actFrom;
+            def accountList = Account.list();
             transaction.errors = actFrom.errors
             respond transaction.errors, model: [transaction: transaction, accountList:accountList], view: 'newPayment'
             return
@@ -52,21 +51,23 @@ class TransactionController {
 
         transaction.save flush:true
 
+        def userFrom = Account.get(transaction.actFrom.id).owner
+        def userTo = Account.get(transaction.actTo.id).owner
         //emails are sent asynchronously
         mailService.sendMail {
             async true
             from "donotreply@bank.com"
-            to Account.get(transaction.actFrom.id).owner.email
+            to userFrom.email
             subject "Transaction Confirmation"
-            text "You successfully sent "+transaction.ammount+" to "+transaction.to.owner.name
+            text "You successfully sent "+transaction.ammount+" to "+userTo.name
         }
 
         mailService.sendMail {
             async true
             from "donotreply@bank.com"
-            to Account.get(transaction.actTo.id).owner.email
+            to userTo.email
             subject "Transaction Confirmation"
-            text "You successfully received "+transaction.ammount+" from "+transaction.from.owner.name
+            text "You successfully received "+transaction.ammount+" from "+userFrom.name
         }
 
         request.withFormat {
@@ -84,7 +85,6 @@ class TransactionController {
     }
 
     def listTransactions(Integer id) {
-        println "**********************"
         def selectedAccount = Account.get(id)
         def query = Transaction.where{actFrom == selectedAccount || actTo == selectedAccount }
         respond query.list(), model:[transactionCount: Transaction.count(), account:selectedAccount]
@@ -94,35 +94,8 @@ class TransactionController {
 
         def transaction = new Transaction()
         transaction.actFrom = Account.get(accountFrom)
-        def accountList = Account.list()- transaction.actFrom;
-
+        def accountList = Account.list();
         respond  accountList, model:[transaction: transaction]
-    }
-
-
-    @Transactional
-    def update(Transaction transaction) {
-        if (transaction == null) {
-            transactionStatus.setRollbackOnly()
-            notFound()
-            return
-        }
-
-        if (transaction.hasErrors()) {
-            transactionStatus.setRollbackOnly()
-            respond transaction.errors, view:'edit'
-            return
-        }
-
-        transaction.save flush:true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'transaction.label', default: 'Transaction'), transaction.id])
-                redirect transaction
-            }
-            '*'{ respond transaction, [status: OK] }
-        }
     }
 
     protected void notFound() {

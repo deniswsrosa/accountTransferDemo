@@ -15,8 +15,53 @@ class UserSpec extends Specification {
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == true
+    void "test User without email"() {
+
+        when:
+        def user = new accounttransferdemo.User(name:"John")
+        user.validate()
+        then:
+        user.hasErrors()
+    }
+
+
+    void "test User without name"() {
+
+        when:
+        def user = new accounttransferdemo.User(email:"denis@test.com")
+        user.validate()
+        then:
+        user.hasErrors()
+    }
+
+
+    void "test invalid email"() {
+
+        when:
+        def user = new accounttransferdemo.User(name:"John", email:"denis.com")
+        user.validate()
+        then:
+        user.hasErrors()
+    }
+
+
+    void "too long email adsress"() {
+
+        when:
+        def user = new accounttransferdemo.User(name:"John",
+                email:"denisssssssssssssssssssssssssssssssssssssssssssssssssssssssssss@gmail.commmmmmmmmm")
+        user.validate()
+        then:
+        user.hasErrors()
+    }
+
+
+    void "test valid user"() {
+
+        when:
+        def user = new accounttransferdemo.User(name:"John", email:"john@test.com")
+        user.validate()
+        then:
+        !user.hasErrors()
     }
 }

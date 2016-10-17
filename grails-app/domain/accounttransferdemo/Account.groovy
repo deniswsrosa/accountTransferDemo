@@ -14,11 +14,6 @@ class Account {
         balance(min:0.0)
     }
 
-    void transferMoney(Account actTo, BigDecimal ammount) {
-        balance = balance-ammount;
-        actTo.balance = actTo.balance + ammount;
-    }
-
     String toString(){
         return "${accountName}"
     }
