@@ -45,33 +45,38 @@
         </li>
     </content>
 
-    <div class="svg" role="presentation">
-        <div class="grails-logo-container">
-            <asset:image src="grails-cupsonly-logo-white.svg" class="grails-logo"/>
-        </div>
-    </div>
 
     <div id="content" role="main">
         <section class="row colset-2-its">
-            <h1>Welcome to Grails</h1>
+            <h1>About</h1>
 
             <p>
-                Congratulations, you have successfully started your first Grails application! At the moment
-                this is the default page, feel free to modify it to either redirect to a controller or display
-                whatever content you may choose. Below is a list of controllers that are currently deployed in
-                this application, click on each to execute its default action:
+                This is a web demo application using Grails 3.2 and Java 8, tested on Ubuntu 16.04.1 LTS.
+            </p>
+            <p>
+                The database has been populated with some initial accounts, but you can add more at "Manage Accounts" Page.
             </p>
 
-            <div id="controllers" role="navigation">
-                <h2>Available Controllers:</h2>
-                <ul>
-                    <g:each var="c" in="${grailsApplication.controllerClasses.sort { it.fullName } }">
-                        <li class="controller">
-                            <g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link>
-                        </li>
-                    </g:each>
-                </ul>
-            </div>
+            <p>
+                To test emails, please download and run <a href="https://nilhcem.github.io/FakeSMTP/"> FakeSMTP </a>
+            </p>
+
+            <p>
+                If you have any questions, please contatc me by email or at <a href="https://www.linkedin.com/in/deniswsrosa"> deniswsrosa </a>
+             </p>
+            <br/>
+            <hr/>
+            <br/>
+            <h1>Let's Start!</h1>
+            <p>Choose bellow what you would like to do </p>
+
+            <ul>
+                <li><a href="/user/index">Manage Users</a></li>
+                <li><a href="/account/index">Manage Accounts</a></li>
+                <li><a href="/transaction/index">View Transaction</a></li>
+            </ul>
+
+
         </section>
     </div>
 
